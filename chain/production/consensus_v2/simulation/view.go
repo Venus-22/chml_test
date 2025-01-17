@@ -13,6 +13,12 @@ type State struct {
 	committee []incognitokey.CommitteePublicKey
 }
 
+func (s *State) CalculateTimeSlot(timestamp int64) int64 {
+	// Implement the logic for calculating the time slot
+	// based on the timestamp
+	return timestamp
+}
+
 // GetHash returns the hash of the block in the state.
 func (s *State) GetHash() *common.Hash {
 	// Ensure that the block is not nil

@@ -30,6 +30,17 @@ func NewChain(chainID int, chainName string, committee []incognitokey.CommitteeP
 	return c
 }
 
+func NewBlock(height int, round int, proposer string, hash common.Hash) types.BlockInterface {
+	return &types.ShardBlock{
+		Header: types.ShardHeader{
+			Height:   uint64(height),
+			Round:    round,
+			
+			Proposer: proposer,
+		},
+	}
+}
+
 func (c *Chain) GetFinalView() multiview.View {
 	return c.multiview.GetFinalView()
 }
@@ -53,7 +64,7 @@ func (s *Chain) UnmarshalBlock(blockString []byte) (types.BlockInterface, error)
 }
 
 func (c *Chain) CreateNewBlock(version int, proposer string, round int, startTime int64) (types.BlockInterface, error) {
-	newBlock := c.NewBlock(c.GetBestView().GetHeight()+1, time.Now().Unix(), proposer, *c.GetBestView().GetHash())
+	newBlock := NewBlock(int(c.GetBestView().GetHeight()+1), int(time.Now().Unix()), proposer, *c.GetBestView().GetHash())
 	return newBlock, nil
 }
 

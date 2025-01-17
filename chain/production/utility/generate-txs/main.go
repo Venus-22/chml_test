@@ -10,10 +10,9 @@ import (
 
 	"github.com/incognitochain/incognito-chain/common"
 	"github.com/incognitochain/incognito-chain/dataaccessobject/statedb"
-	"github.com/incognitochain/incognito-chain/privacy/coin"
-
 	"github.com/incognitochain/incognito-chain/incdb"
 	_ "github.com/incognitochain/incognito-chain/incdb/lvdb"
+	"github.com/incognitochain/incognito-chain/transaction/tx_ver1"
 	"github.com/incognitochain/incognito-chain/wallet"
 )
 
@@ -64,13 +63,10 @@ func initTx(amount string, privateKey string, stateDB *statedb.StateDB) []string
 		testUserKey, _ := wallet.Base58CheckDeserialize(val)
 		testUserKey.KeySet.InitFromPrivateKey(&testUserKey.KeySet.PrivateKey)
 
-		testSalaryTX := tranaction.Tx{}
-
+		testSalaryTX := tx_ver1.Tx{}
 		// TODO Privacy
-		testSalaryTX.InitTxSalary(uint64(initAmount), coin.NewTxRandom(), &testUserKey.KeySet.PaymentAddress, &testUserKey.KeySet.PrivateKey,
-			stateDB,
-			nil,
-		)
+		testSalaryTX.InitTxSalary(uint64(initAmount), &testUserKey.KeySet.PaymentAddress, &testUserKey.KeySet.PrivateKey, stateDB, nil)
+
 		initTx, _ := json.Marshal(testSalaryTX)
 		initTxs = append(initTxs, string(initTx))
 	}

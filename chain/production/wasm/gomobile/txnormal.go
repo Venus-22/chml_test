@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 
 	"github.com/incognitochain/incognito-chain/common"
+	"github.com/incognitochain/incognito-chain/transaction/tx_ver1"
 	"github.com/incognitochain/incognito-chain/wallet"
 
 	"math/big"
 
 	"github.com/incognitochain/incognito-chain/metadata"
-	"github.com/incognitochain/incognito-chain/transaction"
 	"github.com/pkg/errors"
 )
 
@@ -20,8 +20,8 @@ func InitPrivacyTx(args string, serverTime int64) (string, error) {
 		return "", err
 	}
 
-	tx := new(transaction.Tx)
-	err = tx.InitForASM(paramCreateTx, serverTime)
+	tx := new(tx_ver1.Tx)
+	err = tx.InitForASM(paramCreateTx)
 
 	if err != nil {
 		println("Can not create tx: ", err)
@@ -107,8 +107,8 @@ func Staking(args string, serverTime int64) (string, error) {
 
 	paramCreateTx.SetMetaData(metaData)
 
-	tx := new(transaction.Tx)
-	err = tx.InitForASM(paramCreateTx, serverTime)
+	tx := new(tx_ver1.Tx)
+	err = tx.InitForASM(paramCreateTx)
 
 	if err != nil {
 		println("Can not create tx: ", err)
@@ -174,8 +174,8 @@ func StopAutoStaking(args string, serverTime int64) (string, error) {
 
 	paramCreateTx.SetMetaData(metaData)
 
-	tx := new(transaction.Tx)
-	err = tx.InitForASM(paramCreateTx, serverTime)
+	tx := new(tx_ver1.Tx)
+	err = tx.InitForASM(paramCreateTx)
 
 	if err != nil {
 		println("Can not create tx: ", err)
@@ -246,8 +246,12 @@ func InitWithdrawRewardTx(args string, serverTime int64) (string, error) {
 	}
 
 	tmp := &metadata.WithDrawRewardRequest{
+		MetadataBaseWithSignature: metadata.MetadataBaseWithSignature{
+			MetadataBase: metadata.MetadataBase{
+				Type: int(metaDataType),
+			},
+		},
 		PaymentAddress: paymentAddress,
-		MetadataBase:   *metadata.NewMetadataBase(int(metaDataType)),
 		TokenID:        *tokenId,
 		Version:        1,
 	}
@@ -259,8 +263,8 @@ func InitWithdrawRewardTx(args string, serverTime int64) (string, error) {
 
 	paramCreateTx.SetMetaData(tmp)
 
-	tx := new(transaction.Tx)
-	err = tx.InitForASM(paramCreateTx, serverTime)
+	tx := new(tx_ver1.Tx)
+	err = tx.InitForASM(paramCreateTx)
 
 	if err != nil {
 		println("Can not create tx: ", err)

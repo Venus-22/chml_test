@@ -7,7 +7,7 @@ import (
 
 	"github.com/incognitochain/incognito-chain/common"
 	"github.com/incognitochain/incognito-chain/metadata"
-	"github.com/incognitochain/incognito-chain/transaction"
+	"github.com/incognitochain/incognito-chain/transaction/tx_ver1"
 	"github.com/pkg/errors"
 )
 
@@ -81,8 +81,8 @@ func InitPRVContributionTx(args string, serverTime int64) (string, error) {
 
 	paramCreateTx.SetMetaData(metaData)
 
-	tx := new(transaction.Tx)
-	err = tx.InitForASM(paramCreateTx, serverTime)
+	tx := new(tx_ver1.Tx)
+	err = tx.InitForASM(paramCreateTx)
 
 	if err != nil {
 		println("Can not create tx: ", err)
@@ -136,7 +136,7 @@ func InitPTokenContributionTx(args string, serverTime int64) (string, error) {
 
 	paramCreateTx.SetMetaData(metaData)
 
-	tx := new(transaction.TxTokenBase)
+	tx := new(tx_ver1.TxToken)
 	err = tx.InitForASM(paramCreateTx, serverTime)
 
 	if err != nil {
@@ -151,7 +151,7 @@ func InitPTokenContributionTx(args string, serverTime int64) (string, error) {
 		return "", err
 	}
 
-	lockTimeBytes := common.AddPaddingBigInt(new(big.Int).SetInt64(tx.LockTime), 8)
+	lockTimeBytes := common.AddPaddingBigInt(new(big.Int).SetInt64(tx.GetTxBase().GetLockTime()), 8)
 	resBytes := append(txJson, lockTimeBytes...)
 
 	B64Res := base64.StdEncoding.EncodeToString(resBytes)
@@ -200,7 +200,7 @@ func InitPEDTradeRequestMetadataFromParam(metaDataParam map[string]interface{}) 
 	}
 
 	metaData, err := metadata.NewPDETradeRequest(
-		tokenIDToBuyStr, tokenIDToSellStr, uint64(sellAmount), uint64(minAcceptableAmount), uint64(tradingFee), traderAddressStr, int(metaDataType),
+		tokenIDToBuyStr, tokenIDToSellStr, uint64(sellAmount), uint64(minAcceptableAmount), uint64(tradingFee), traderAddressStr, "some_string", int(metaDataType),
 	)
 	if err != nil {
 		return nil, err
@@ -241,8 +241,8 @@ func InitPRVTradeTx(args string, serverTime int64) (string, error) {
 
 	paramCreateTx.SetMetaData(metaData)
 
-	tx := new(transaction.Tx)
-	err = tx.InitForASM(paramCreateTx, serverTime)
+	tx := new(tx_ver1.Tx)
+	err = tx.InitForASM(paramCreateTx)
 
 	if err != nil {
 		println("Can not create tx: ", err)
@@ -296,7 +296,7 @@ func InitPTokenTradeTx(args string, serverTime int64) (string, error) {
 
 	paramCreateTx.SetMetaData(metaData)
 
-	tx := new(transaction.TxTokenBase)
+	tx := new(tx_ver1.TxToken)
 	err = tx.InitForASM(paramCreateTx, serverTime)
 
 	if err != nil {
@@ -311,7 +311,7 @@ func InitPTokenTradeTx(args string, serverTime int64) (string, error) {
 		return "", err
 	}
 
-	lockTimeBytes := common.AddPaddingBigInt(new(big.Int).SetInt64(tx.LockTime), 8)
+	lockTimeBytes := common.AddPaddingBigInt(new(big.Int).SetInt64(tx.GetTxBase().GetLockTime()), 8)
 	resBytes := append(txJson, lockTimeBytes...)
 
 	B64Res := base64.StdEncoding.EncodeToString(resBytes)
@@ -380,8 +380,8 @@ func WithdrawDexTx(args string, serverTime int64) (string, error) {
 
 	paramCreateTx.SetMetaData(metaData)
 
-	tx := new(transaction.Tx)
-	err = tx.InitForASM(paramCreateTx, serverTime)
+	tx := new(tx_ver1.Tx)
+	err = tx.InitForASM(paramCreateTx)
 
 	if err != nil {
 		println("Can not create tx: ", err)

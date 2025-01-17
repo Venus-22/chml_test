@@ -1,3 +1,4 @@
+// chain/production/wasm/gomobile/param.go
 package gomobile
 
 import (
@@ -9,11 +10,12 @@ import (
 	"github.com/incognitochain/incognito-chain/privacy"
 	"github.com/incognitochain/incognito-chain/privacy/coin"
 	"github.com/incognitochain/incognito-chain/transaction"
+	"github.com/incognitochain/incognito-chain/transaction/tx_ver1"
 	"github.com/incognitochain/incognito-chain/wallet"
 	"github.com/pkg/errors"
 )
 
-func InitParamCreatePrivacyTx(args string) (*transaction.TxPrivacyInitParamsForASM, error) {
+func InitParamCreatePrivacyTx(args string) (*tx_ver1.TxPrivacyInitParamsForASM, error) {
 	bytes := []byte(args)
 	println("Bytes: %v\n", bytes)
 
@@ -243,13 +245,13 @@ func InitParamCreatePrivacyTx(args string) (*transaction.TxPrivacyInitParamsForA
 		sndOutputs[i] = new(privacy.Scalar).FromBytesS(tmp)
 	}
 
-	paramCreateTx := transaction.NewTxPrivacyInitParamsForASM(&senderSK, paymentInfo, inputCoins, uint64(fee), hasPrivacy, nil, nil, infoBytes, commitmentIndices, commitmentBytes, myCommitmentIndices, sndOutputs)
+	paramCreateTx := tx_ver1.NewTxPrivacyInitParamsForASM(&senderSK, paymentInfo, inputCoins, uint64(fee), hasPrivacy, nil, nil, infoBytes, commitmentIndices, commitmentBytes, myCommitmentIndices, sndOutputs)
 	println("paramCreateTx: ", paramCreateTx)
 
 	return paramCreateTx, nil
 }
 
-func InitParamCreatePrivacyTokenTx(args string) (*transaction.TxPrivacyTokenInitParamsForASM, error) {
+func InitParamCreatePrivacyTokenTx(args string) (*tx_ver1.TxPrivacyTokenInitParamsForASM, error) {
 	bytes := []byte(args)
 	println("Bytes: %v\n", bytes)
 
@@ -720,7 +722,7 @@ func InitParamCreatePrivacyTokenTx(args string) (*transaction.TxPrivacyTokenInit
 	println("privacyTokenParam.Amount: ", privacyTokenParam.Amount)
 	//println("privacyTokenParam.PropertySymbol: ", len(privacyTokenParam.PropertySymbol))
 
-	paramCreateTx := transaction.NewTxPrivacyTokenInitParamsForASM(
+	paramCreateTx := tx_ver1.NewTxPrivacyTokenInitParamsForASM(
 		&senderSK, paymentInfo, inputCoins, fee, privacyTokenParam, nil, hasPrivacy, hasPrivacyForPToken, shardID, infoBytes,
 		commitmentIndicesForNativeToken, commitmentBytesForNativeToken, myCommitmentIndicesForNativeToken, sndOutputsForNativeToken,
 		commitmentIndicesForPToken, commitmentBytesForPToken, myCommitmentIndicesForPToken, sndOutputsForPToken)

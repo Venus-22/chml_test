@@ -50,7 +50,7 @@ type MultiView interface {
 }
 
 type multiView struct {
-	viewByHash     map[common.Hash]View // Mapping from block hash to views
+	viewByHash     map[common.Hash]View   // Mapping from block hash to views
 	viewByPrevHash map[common.Hash][]View // Mapping from previous block hash to views
 	lock           *sync.RWMutex
 

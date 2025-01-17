@@ -7,8 +7,7 @@ import (
 	"math/big"
 
 	"github.com/incognitochain/incognito-chain/common"
-	"github.com/incognitochain/incognito-chain/metadata"
-	"github.com/incognitochain/incognito-chain/transaction"
+	"github.com/incognitochain/incognito-chain/metadata/bridge"
 	"github.com/incognitochain/incognito-chain/transaction/tx_ver1"
 	"github.com/incognitochain/incognito-chain/wallet"
 	"github.com/pkg/errors"
@@ -36,7 +35,7 @@ func InitPrivacyTokenTx(args string, serverTime int64) (string, error) {
 
 	tokenIDBytes := tx.TxTokenData.PropertyID.GetBytes()
 
-	lockTimeBytes := common.AddPaddingBigInt(new(big.Int).SetInt64(tx.LockTime), 8)
+	lockTimeBytes := common.AddPaddingBigInt(new(big.Int).SetInt64(tx.GetLockTime()), 8)
 	resBytes := append(txJson, lockTimeBytes...)
 	resBytes = append(resBytes, tokenIDBytes...)
 
@@ -107,7 +106,7 @@ func InitBurningRequestTx(args string, serverTime int64) (string, error) {
 		return "", errors.New("Invalid meta data remote address param")
 	}
 
-	metaData, err := metadata.NewBurningRequest(burnerAddress, uint64(burningAmount), *tokenIDHash, tokenName, remoteAddress, int(metaDataType))
+	metaData, err := bridge.NewBurningRequest(burnerAddress, uint64(burningAmount), *tokenIDHash, tokenName, remoteAddress, int(metaDataType))
 	if err != nil {
 		return "", err
 	}
@@ -119,7 +118,7 @@ func InitBurningRequestTx(args string, serverTime int64) (string, error) {
 
 	paramCreateTx.SetMetaData(metaData)
 
-	tx := new(transaction.TxTokenBase)
+	tx := new(tx_ver1.TxToken)
 	err = tx.InitForASM(paramCreateTx, serverTime)
 
 	if err != nil {
@@ -136,7 +135,7 @@ func InitBurningRequestTx(args string, serverTime int64) (string, error) {
 
 	tokenIDBytes := tx.TxTokenData.PropertyID.GetBytes()
 
-	lockTimeBytes := common.AddPaddingBigInt(new(big.Int).SetInt64(tx.LockTime), 8)
+	lockTimeBytes := common.AddPaddingBigInt(new(big.Int).SetInt64(tx.GetLockTime()), 8)
 	resBytes := append(txJson, lockTimeBytes...)
 	resBytes = append(resBytes, tokenIDBytes...)
 
