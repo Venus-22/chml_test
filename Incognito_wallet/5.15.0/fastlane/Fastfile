@@ -1,0 +1,77 @@
+fastlane_version '2.53.1'
+
+before_all do
+  ensure_git_branch(
+    branch: 'store'
+  )
+end
+
+platform :ios do
+   desc 'Fetch certificates and provisioning profiles'
+
+   lane :release do
+     setup_circle_ci
+      setupCodeSigning(ENV["MATCH_PASSWORD"], ENV["MATCH_PASSWORD"],
+      './fastlane/AppStore_com.incognito.wallet.mobileprovision',
+      './fastlane/appstore-distribution.cer',
+      './fastlane/appstore-private-key.p12',
+      )
+       #match(type: 'appstore', readonly: true ,api_key_path: "fastlane/develop.json"
+       build_app(
+       workspace: './ios/Incognito.xcworkspace',
+       scheme: 'Incognito',
+       export_method: "app-store",
+           export_options: {
+             provisioningProfiles: {
+               "com.incognito.wallet" => "AppStore_com.incognito.wallet"
+             }
+           },
+       export_xcargs: "-allowProvisioningUpdates"
+     )
+     pilot( api_key_path: "fastlane/develop.json" )
+     upload_to_app_store(
+       submit_for_review: false,
+       force: true
+     )
+   end
+end
+
+platform :android do
+  desc 'Build the Android application.'
+  lane :release do
+   gradle(
+     task: 'assemble',
+     build_type: 'Release',
+     project_dir: 'android/'
+   )
+   upload_to_play_store(
+     release_status: 'draft',
+   )
+  end
+end
+
+def setupCodeSigning(keychainPassword, certificatePassword, profilePath, certificatePath, privateKeyPath)
+  create_keychain(
+    name: "CI",
+    password: keychainPassword,
+    default_keychain: true,
+    unlock: true,
+    timeout: 3600,
+    lock_when_sleeps: false
+  )
+  install_provisioning_profile(path: profilePath)
+  import_certificate(
+    certificate_path: certificatePath,
+    certificate_password: certificatePassword,
+    keychain_name: "CI",
+    keychain_password: keychainPassword,
+    log_output: true
+  )
+  import_certificate(
+      certificate_path: privateKeyPath,
+      certificate_password: certificatePassword,
+      keychain_name: "CI",
+      keychain_password: keychainPassword,
+      log_output: true
+    )
+end

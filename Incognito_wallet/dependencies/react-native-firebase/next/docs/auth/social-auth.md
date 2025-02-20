@@ -1,0 +1,203 @@
+---
+title: Social Auth
+description: React Native Firebase integrates with the majority of social auth providers, using external libraries.
+---
+
+# Social Auth
+
+React Native Firebase provides support for integrating with different social platforms. The authentication with these
+different platforms is left to the developer to implement due to the various implementations and flows possible using their
+oAuth APIs.
+
+Below are our recommended approaches for integrating with each social platform.
+
+## Apple
+
+The [@invertase/react-native-apple-authentication](https://github.com/invertase/react-native-apple-authentication) provides a library that helps manage Apple authentication easily.
+
+**Step 1**: Login with Apple.
+
+```js
+import React from 'react';
+import { View } from 'react-native';
+import { firebase } from '@react-native-firebase/auth';
+import appleAuth, {
+  AppleButton,
+  AppleAuthRequestScope,
+  AppleAuthRequestOperation
+  } from '@invertase/react-native-apple-authentication';
+
+/**
+ * Note the sign in request can error, e.g. if the user cancels the sign-in.
+ * Use `AppleAuthError` to determine the type of error, e.g. `error.code === AppleAuthError.CANCELED`
+ */
+async function onAppleButtonPress() {
+  // 1). start a apple sign-in request
+  const appleAuthRequestResponse = await appleAuth.performRequest({
+    requestedOperation: AppleAuthRequestOperation.LOGIN,
+    requestedScopes: [AppleAuthRequestScope.EMAIL, AppleAuthRequestScope.FULL_NAME],
+  });
+
+  // 2). if the request was successful, extract the token and nonce
+  const { identityToken, nonce } = appleAuthRequestResponse;
+}
+
+```
+
+**Step 2**: Create a Firebase credential with the `identityToken` & `nonce`.
+
+```js
+// can be null in some scenarios
+if (identityToken) {
+  // 3). create a Firebase `AppleAuthProvider` credential
+  const appleCredential = firebase.auth.AppleAuthProvider.credential(identityToken, nonce);
+}
+```
+
+**Step 3**: Sign in to Firebase with the created credential.
+
+```js
+// 4). use the created `AppleAuthProvider` credential to start a Firebase auth request,
+//     in this example `signInWithCredential` is used, but you could also call `linkWithCredential`
+//     to link the account to an existing user
+const userCredential = await firebase.auth().signInWithCredential(appleCredential);
+
+// user is now signed in, any Firebase `onAuthStateChanged` listeners you have will trigger
+console.warn(`Firebase authenticated via Apple, UID: ${userCredential.user.uid}`);
+```
+
+
+## Facebook
+
+The recommended library of choice is the official [react-native-fbsdk](https://github.com/facebook/react-native-fbsdk)
+library, which provides a wrapper around the native Android & iOS SDKs. The library handles user login and granting
+access to the users `AccessToken` which is required to create a Firebase credential.
+
+The following steps assume you have installed the `react-native-fbsdk` library and have added the Facebook project ID to your Android/iOS project following the [quick start](https://developers.facebook.com/quickstarts/) Facebook guides.
+
+**Step 1**: Login to Facebook with permissions.
+
+```js
+import { LoginManager } from 'react-native-fbsdk';
+
+// Login with permissions
+const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+
+if (result.isCancelled) {
+  throw new Error('User cancelled the login process');
+}
+```
+
+**Step 2**: Read the users `AccessToken`.
+
+```js
+import { AccessToken } from 'react-native-fbsdk';
+
+const data = await AccessToken.getCurrentAccessToken();
+
+if (!data) {
+  throw new Error('Something went wrong obtaining access token');
+}
+```
+
+**Step 3**: Create a Firebase credential with the token.
+
+```js
+import { firebase } from '@react-native-firebase/auth';
+
+const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+```
+
+**Step 4**: Sign in to Firebase with the created credential.
+
+```js
+await firebase.auth().signInWithCredential(credential);
+```
+
+## Twitter
+
+The [react-native-twitter-signin](https://github.com/GoldenOwlAsia/react-native-twitter-signin) library provides a
+wrapper around the official Twitter SDKs, providing access to the users `authToken` and `authTokenSecret` which are
+required to create a Firebase credential.
+
+**Step 1**: Initialize the Twitter SDK.
+
+```js
+import { NativeModules } from 'react-native';
+const { RNTwitterSignIn } = NativeModules;
+
+await RNTwitterSignIn.init('TWITTER_CONSUMER_KEY', 'TWITTER_CONSUMER_SECRET');
+```
+
+**Step 2**: Login to Twitter and read tokens
+
+```js
+// Also returns: name, userID & userName
+const { authToken, authTokenSecret } = await RNTwitterSignIn.logIn();
+```
+
+**Step 3**: Create a Firebase credential with the tokens.
+
+```js
+import { firebase } from '@react-native-firebase/auth';
+
+const credential = firebase.auth.TwitterAuthProvider.credential(authToken, authTokenSecret);
+```
+
+**Step 4**: Sign in to Firebase with the created credential.
+
+```js
+await firebase.auth().signInWithCredential(credential);
+```
+
+## Google
+
+The [@react-native-community/google-signin](https://github.com/react-native-community/react-native-google-signin) library provides a
+wrapper around the official Google login library, providing access to the users `accessToken` and `idToken` which are
+required to create a Firebase credential.
+
+**Step 1**: Configure the library.
+
+- The `configure` method only needs to be called once during your apps lifecycle.
+- Configuration settings can be obtained from [here](https://github.com/react-native-community/react-native-google-signin/blob/master/docs/get-config-file.md);
+
+```js
+import { GoogleSignin } from '@react-native-community/google-signin';
+
+async function bootstrap() {
+  await GoogleSignin.configure({
+    scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+    webClientId: '', // required
+  });
+}
+```
+
+**Step 2**: Login with Google
+
+```js
+import { GoogleSignin } from '@react-native-community/google-signin';
+
+const { accessToken, idToken } = await GoogleSignin.signIn();
+```
+
+**Step 3**: Create a Firebase credential with the tokens.
+
+```js
+import { firebase } from '@react-native-firebase/auth';
+
+const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken);
+```
+
+**Step 4**: Sign in to Firebase with the created credential.
+
+```js
+await firebase.auth().signInWithCredential(credential);
+```
+
+## Github
+
+_TODO_ @salakar
+
+## Custom Provider
+
+_TODO_ @salakar

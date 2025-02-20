@@ -1,0 +1,1 @@
+export { default } from '@screens/DexV2/components/Trade/TradeV2';

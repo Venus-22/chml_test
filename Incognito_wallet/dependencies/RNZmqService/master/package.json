@@ -1,0 +1,23 @@
+
+{
+  "name": "react-native-zmq-service",
+  "version": "1.0.0",
+  "description": "ZMQ Serive",
+  "homepage": "https://github.com/matsatit/RNZmqService",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react-native","zmq"
+  ],
+  "author": "matsat",
+  "license": "",
+  "peerDependencies": {
+    "react-native": ">=0.56",
+    "react-native-windows": "0.41.0-rc.1"
+  },
+  "devDependencies":{
+    "react-native": "0.59.9"
+  }
+}

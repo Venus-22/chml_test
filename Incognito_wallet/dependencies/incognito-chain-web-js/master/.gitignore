@@ -1,0 +1,15 @@
+.idea
+.idea/
+.vscode
+.DS_Store
+
+node_modules/
+#build/
+
+package-lock.json
+
+yarn.lock
+
+paymentAddr.json
+
+privateKeyStaking.json
